@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,8 +26,6 @@ import { CalendarIcon } from "lucide-react";
 import { FiUpload, FiTrash, FiPlus } from "react-icons/fi";
 import { cn } from "@/lib/utils";
 import { uploadFiles, submitFormData } from "@/utils/apiRoutes";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -53,6 +51,16 @@ const formSchema = z.object({
     .min(2, "At least two documents are required"),
 });
 
+interface RequiredLabelProps {
+  children: React.ReactNode;
+}
+
+const RequiredLabel: React.FC<RequiredLabelProps> = ({ children }) => (
+  <FormLabel>
+    {children}
+    <span className="text-red-500 ml-1">*</span>
+  </FormLabel>
+);
 export default function SubmissionForm() {
   const [sameAsResidential, setSameAsResidential] = useState(false);
 
@@ -70,7 +78,6 @@ export default function SubmissionForm() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      // Prepare form data with file uploads
       const formData = new FormData();
       formData.append("data", JSON.stringify({
         firstName: data.firstName,
@@ -90,19 +97,15 @@ export default function SubmissionForm() {
         }
       }
   
-      // Upload files and submit form data
       await uploadFiles(formData);
       await submitFormData(data);
   
-      // Notify user of successful submission
       alert("Form submitted successfully!");
     } catch (error) {
       console.error(error);
-      // Notify user of an error
       alert("Form submission failed. Please try again.");
     }
   };
-  
 
   const addDocument = () => {
     const documents = form.getValues("documents");
@@ -123,14 +126,13 @@ export default function SubmissionForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Responsive grid: 1 column on small screens, 2 columns on medium and above */}
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4 mt-5">
           <FormField
             control={form.control}
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name</FormLabel>
+                <RequiredLabel>First Name</RequiredLabel>
                 <FormControl>
                   <Input placeholder="Enter your first name here.." {...field} />
                 </FormControl>
@@ -143,7 +145,7 @@ export default function SubmissionForm() {
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Last Name</FormLabel>
+                <RequiredLabel>Last Name</RequiredLabel>
                 <FormControl>
                   <Input placeholder="Enter your last name here.." {...field} />
                 </FormControl>
@@ -159,7 +161,7 @@ export default function SubmissionForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <RequiredLabel>Email</RequiredLabel>
                 <FormControl>
                   <Input
                     type="email"
@@ -176,7 +178,7 @@ export default function SubmissionForm() {
             name="dateOfBirth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
+                <RequiredLabel>Date of Birth</RequiredLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -221,7 +223,7 @@ export default function SubmissionForm() {
             name="residentialStreet1"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Residential Address (Street 1)</FormLabel>
+                <RequiredLabel>Residential Address (Street 1)</RequiredLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -234,7 +236,7 @@ export default function SubmissionForm() {
             name="residentialStreet2"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Residential Address (Street 2)</FormLabel>
+                <RequiredLabel>Residential Address (Street 2)</RequiredLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -309,7 +311,7 @@ export default function SubmissionForm() {
                   name={`documents.${index}.fileName`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>File Name</FormLabel>
+                      <RequiredLabel>File Name</RequiredLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -324,7 +326,7 @@ export default function SubmissionForm() {
                   name={`documents.${index}.fileType`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Type of File</FormLabel>
+                      <RequiredLabel>Type of File</RequiredLabel>
                       <FormControl>
                         <select
                           {...field}
@@ -345,7 +347,7 @@ export default function SubmissionForm() {
                   name={`documents.${index}.file`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>File Upload</FormLabel>
+                      <RequiredLabel>File Upload</RequiredLabel>
                       <FormControl>
                         <div className="relative flex items-center">
                           <input
